@@ -34,7 +34,7 @@ st.write(
     "اطرح سؤالك بأي صيغة باللغتين **العربية** أو **الإنجليزية**!"
 )
 
-# تعليمات النظام الصارمة (System Prompt) التي تجعل الذكاء الاصطناعي خبيراً ومقيداً بشروط المسابقة
+# تعليمات النظام الصارمة (System Prompt)
 SYSTEM_PROMPT = """
 You are an intelligent, safe, educational AI Medical Chatbot specialized EXCLUSIVELY in "High Blood Pressure (Hypertension)".
 
@@ -47,7 +47,7 @@ STRICT COMPETITION RULES YOU MUST FOLLOW:
    - NEVER prescribe medications, suggest specific drug names to take, or give medication dosing instructions.
    - If a user asks whether to stop or change their medication, firmly advise them NOT to stop or alter medication without consulting their prescribing doctor.
    - Always remind the user briefly that this information does not replace a healthcare professional.
-4. URGENT WARNING SIGNS: If the user mentions readings above 180/120 mmHg, or symptoms like chest pain, shortness of breath, numbness/weakness, vision changes, or difficulty speaking, immediately highlight that this is a hypertensive crisis / medical emergency and instruct them to seek immediate emergency medical care.
+4. URGENT WARNING SIGNS: If the user mentions readings above 180/120 mmHg, or symptoms like chest pain, shortness of breath, dizziness with high readings, numbness/weakness, vision changes, or difficulty speaking, immediately highlight that this requires urgent medical evaluation or emergency care.
 5. RELIABLE SOURCES & FACTS TO USE:
    - Cite authoritative sources naturally at the end of your response: (Source: WHO / CDC / NHS / MedlinePlus). Never invent fake links or fake studies.
    - Normal BP: Less than 120/80 mmHg (CDC/NHS).
@@ -61,9 +61,43 @@ STRICT COMPETITION RULES YOU MUST FOLLOW:
 client = None
 if "GROQ_API_KEY" in st.secrets:
     try:
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"].strip())
     except Exception:
         client = None
+
+
+# دالة ذكية لاختيار النموذج المتاح في حساب Groq تلقائياً لتجنب خطأ 404
+@st.cache_resource
+def get_working_model(_client):
+    try:
+        models = _client.models.list()
+        available_ids = [
+            m.id
+            for m in models.data
+            if "whisper" not in m.id.lower()
+            and "guard" not in m.id.lower()
+            and "tts" not in m.id.lower()
+            and "vision" not in m.id.lower()
+        ]
+        # قائمة النماذج المفضلة بالترتيب
+        preferred = [
+            "llama-3.1-8b-instant",
+            "llama3-8b-8192",
+            "llama3-70b-8192",
+            "gemma2-9b-it",
+            "mixtral-8x7b-32768",
+        ]
+        for p in preferred:
+            if p in available_ids:
+                return p
+        # إذا تغيرت الأسماء مستقبلاً، يختار أول نموذج محادثة متاح تلقائياً
+        for m_id in available_ids:
+            if "llama" in m_id.lower() or "gemma" in m_id.lower() or "qwen" in m_id.lower():
+                return m_id
+        return available_ids[0] if available_ids else "llama-3.1-8b-instant"
+    except Exception:
+        return "llama-3.1-8b-instant"
+
 
 # ذاكرة المحادثة
 if "messages" not in st.session_state:
@@ -83,12 +117,13 @@ if prompt := st.chat_input("اكتب سؤالك بأي صيغة هنا... / Ask 
         if client is not None:
             with st.spinner("Thinking... / جاري تحليل السؤال وصياغة الإجابة..."):
                 try:
+                    active_model = get_working_model(client)
                     messages_for_api = [{"role": "system", "content": SYSTEM_PROMPT}]
                     for m in st.session_state.messages[-6:]:
                         messages_for_api.append({"role": m["role"], "content": m["content"]})
 
                     completion = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
+                        model=active_model,
                         messages=messages_for_api,
                         temperature=0.2,
                         max_tokens=600,
@@ -98,8 +133,7 @@ if prompt := st.chat_input("اكتب سؤالك بأي صيغة هنا... / Ask 
                     response = f"⚠️ حدث خطأ في الاتصال بالنموذج الذكي: {e}"
         else:
             response = (
-                "⚠️ **تنبيه إعداد المفتاح:** لم يتم العثور على مفتاح `GROQ_API_KEY` في إعدادات `Secrets` داخل Streamlit Cloud. "
-                "يرجى إضافته ليعمل الذكاء الاصطناعي الحقيقي ويجيب على كافة الأسئلة بحرية."
+                "⚠️ **تنبيه إعداد المفتاح:** لم يتم العثور على مفتاح `GROQ_API_KEY` في إعدادات `Secrets` داخل Streamlit Cloud."
             )
 
         st.markdown(response)
