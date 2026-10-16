@@ -287,7 +287,7 @@ with st.sidebar:
     st.header("🌐 Language / اللغة")
     ui_lang = st.radio(
         "Select Interface & Preset Questions Language:",
-        ["English 🇬🇧", "العربية 🇸🇦"],
+        ["English 🇬🇧", "العربية 🇮🇶"],
         horizontal=True,
     )
 
