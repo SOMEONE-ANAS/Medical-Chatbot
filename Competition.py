@@ -41,7 +41,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. قائمة الأسئلة الـ 30 المعتمدة (تستخدم كاختصارات سريعة في القائمة الجانبية)
+# 3. قائمة الأسئلة الـ 30 المعتمدة (اختصارات سريعة في القائمة الجانبية)
 QA_DATABASE = [
     {
         "id": 1,
@@ -195,7 +195,7 @@ QA_DATABASE = [
     },
 ]
 
-# 4. الشريط الجانبي (اللغة، القائمة السريعة للأسئلة، والمصادر)
+# 4. الشريط الجانبي
 with st.sidebar:
     st.header("🌐 Language / اللغة")
     ui_lang = st.radio(
@@ -245,7 +245,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 6. تعليمات النظام الذكية التي تجعل النموذج يجيب على أي سؤال حر في التخصص
+# 6. تعليمات النظام الذكية
 SYSTEM_PROMPT = """
 You are an intelligent, safe, educational AI Medical Chatbot specialized EXCLUSIVELY in "Iron-Deficiency Anemia (فقر الدم بعوز الحديد)".
 
@@ -270,24 +270,29 @@ if "GROQ_API_KEY" in st.secrets:
     except Exception:
         client = None
 
-
+# دالة ذكية لاختيار النموذج المتاح في حساب Groq تلقائياً لتجنب خطأ 404
 @st.cache_resource
 def get_working_model(_client):
     try:
         models = _client.models.list()
         available_ids = [
-            m.id
-            for m in models.data
+            m.id for m in models.data 
             if all(x not in m.id.lower() for x in ["whisper", "guard", "tts", "vision"])
         ]
-        preferred = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "llama3-8b-8192"]
+        # قائمة النماذج المفضلة بالترتيب
+        preferred = [
+            "llama-3.1-8b-instant",
+            "llama3-8b-8192",
+            "llama3-70b-8192",
+            "gemma2-9b-it",
+            "mixtral-8x7b-32768"
+        ]
         for p in preferred:
             if p in available_ids:
                 return p
-        return available_ids[0] if available_ids else "llama-3.3-70b-versatile"
+        return available_ids[0] if available_ids else "llama-3.1-8b-instant"
     except Exception:
-        return "llama-3.3-70b-versatile"
-
+        return "llama-3.1-8b-instant"
 
 # 7. إدارة ذاكرة المحادثة والشات بوت المفتوح
 if "messages" not in st.session_state:
@@ -297,7 +302,6 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# التقاط السؤال سواء من كتابة المستخدم الحرة أو من القائمة الجانبية
 user_query = st.chat_input("Ask any question freely in English or Arabic... / اطرح أي سؤال حر هنا...")
 
 if ask_preset_btn and not selected_q.startswith("---"):
@@ -328,8 +332,7 @@ if user_query:
                     response = f"⚠️ حدث خطأ أثناء الاتصال بمحرك الذكاء الاصطناعي: {e}"
         else:
             response = (
-                "⚠️ **تنبيه إعداد المفتاح:** لم يتم العثور على مفتاح `GROQ_API_KEY` في إعدادات `Secrets` على منصة Streamlit Cloud. "
-                "يرجى إضافته ليعمل الذكاء الاصطناعي ويجيب على الأسئلة الحرة."
+                "⚠️ **تنبيه إعداد المفتاح:** لم يتم العثور على مفتاح `GROQ_API_KEY` في إعدادات `Secrets` على منصة Streamlit Cloud."
             )
 
         st.markdown(response)
