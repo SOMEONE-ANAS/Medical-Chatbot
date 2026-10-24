@@ -347,7 +347,7 @@ QA_DATABASE = [
 with st.sidebar:
     st.header("🌐 Language / اللغة")
     ui_lang = st.radio(
-        "Select Language:", ["English 🇬🇧", "العربية 🇸🇦"], horizontal=True
+        "Select Language:", ["English 🇬🇧", "العربية 🇮🇶"], horizontal=True
     )
 
     st.markdown("---")
