@@ -8,6 +8,59 @@ st.set_page_config(
     layout="centered",
 )
 
+# 🎨 تصميم واجهة مستخدم احترافية مع تأثيرات حركية لخلايا الدم (CSS & Animations)
+st.markdown("""
+<style>
+    /* تنسيق عام للخلفية والنصوص */
+    .stApp {
+        background-color: #0e1117;
+        color: #f0f2f6;
+    }
+    
+    /* شريط العنوان التفاعلي النابض بالحياة */
+    .blood-banner {
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(147, 51, 234, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 22px;
+        border-radius: 14px;
+        text-align: center;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 25px rgba(239, 68, 68, 0.15);
+    }
+    
+    .blood-banner h1 {
+        color: #f87171;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+    
+    .blood-banner p {
+        color: #9ca3af;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* تأثير نبض وحركة خلايا الدم الحمراء في الواجهة */
+    @keyframes cell-pulse {
+        0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.4)); }
+        50% { transform: scale(1.12); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.4)); }
+    }
+    
+    .animated-cell {
+        display: inline-block;
+        animation: cell-pulse 2.2s infinite ease-in-out;
+        font-size: 32px;
+    }
+
+    /* تنسيق صناديق الإدخال والجانب */
+    .stChatMessage {
+        border-radius: 12px !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # 📋 قاعدة البيانات الشاملة للـ 30 سؤالاً (باللغتين الإنجليزية والعربية)
 QA_DATABASE = [
     {
@@ -221,7 +274,7 @@ QA_DATABASE = [
         "id": 24,
         "q_en": "Does feeling tired and exhausted always mean I have iron-deficiency anemia?",
         "q_ar": "هل الشعور بالتعب والإرهاق يعني دائماً أنني مصاب بفقر الدم؟",
-        "kw_ar": ["الشعور بالتعب", "دائماً", "يعني حتماً"],
+        "kw_en": ["الشعور بالتعب", "دائماً", "يعني حتماً"],
         "kw_en": ["always mean", "tired always", "exhausted always"],
         "a_en": "**Misconception:** No. Fatigue is a non-specific symptom caused by many conditions (poor sleep, stress, thyroid issues, vitamin D/B12 deficiency). Only a clinical blood test ordered by a doctor can confirm iron-deficiency anemia. *(Source: NHS)*",
         "a_ar": "**مفهوم خاطئ:** لا، التعب عرض عام يشترك فيه العديد من الحالات (مثل قلة النوم، الإجهاد، خمول الغدة الدرقية، أو نقص فيتامين D و B12)، ولا يتأكد تشخيص فقر الدم إلا بتحليل الدم المخبري. *(المصدر: NHS)*",
@@ -282,20 +335,18 @@ QA_DATABASE = [
     },
 ]
 
-# الشريط الجانبي: اختيار اللغة + اختيار من الـ 30 سؤالاً + إخلاء المسؤولية + المصادر
+# الشريط الجانبي: اختيار اللغة + الـ 30 سؤالاً + إخلاء المسؤولية
 with st.sidebar:
     st.header("🌐 Language / اللغة")
     ui_lang = st.radio(
         "Select Interface & Preset Questions Language:",
-        ["English 🇬🇧", "العربية 🇮🇶"],
+        ["English 🇬🇧", "العربية 🇸🇦"],
         horizontal=True,
     )
 
     st.markdown("---")
-    st.header("📋 30 Verified Questions / الأسئلة الـ 30")
-    st.caption(
-        "Click any question below to test the bot immediately / اضغط لتجربة أي سؤال مباشرة:"
-    )
+    st.header("📋 30 Verified Questions")
+    st.caption("Select a question to test immediately / اضغط لتجربة أي سؤال:")
 
     if ui_lang == "English 🇬🇧":
         question_options = ["--- Select a sample question (1-30) ---"] + [
@@ -307,15 +358,15 @@ with st.sidebar:
         ]
 
     selected_q = st.selectbox("Preset Questions:", question_options, label_visibility="collapsed")
-    ask_preset_btn = st.button("🚀 Ask Selected Question / إرسال السؤال المختار", use_container_width=True)
+    ask_preset_btn = st.button("🚀 Ask Selected Question / إرسال", use_container_width=True)
 
     st.markdown("---")
-    st.header("⚠️ Disclaimer / إخلاء مسؤولية")
+    st.header("⚠️ Disclaimer")
     st.warning(
         "**EN:** Educational prototype for **Iron-Deficiency Anemia**. "
-        "No personal diagnosis or supplement dosing. Seek emergency care for urgent symptoms.\n\n"
-        "**AR:** نموذج تعليمي لموضوع **فقر الدم بعوز الحديد**. "
-        "لا يقدم تشخيصاً شخصياً أو جرعات دوائية. راجع الطوارئ فوراً عند الأعراض الحرجة."
+        "No diagnosis or supplement dosing. Seek emergency care for urgent symptoms.\n\n"
+        "**AR:** نموذج تعليمي لـ **فقر الدم بعوز الحديد**. "
+        "لا يقدم تشخيصاً شخصياً. راجع الطوارئ فوراً عند الأعراض الحرجة."
     )
     st.subheader("📚 Approved Sources")
     st.markdown(
@@ -325,15 +376,15 @@ with st.sidebar:
         "- [CDC - Iron](https://www.cdc.gov/nutrition/micronutrient-malnutrition/about-iron/)"
     )
 
-# عنوان الصفحة الرئيسي
-st.title("🩸 Iron-Deficiency Anemia AI Assistant")
-st.subheader("مساعد الذكاء الاصطناعي التعليمي لفقر الدم بعوز الحديد")
-st.write(
-    "🇬🇧 **English:** Type any question in English or select from the 30 verified questions in the sidebar.\n\n"
-    "🇮🇶 **العربية:** اكتب أي سؤال بالعربية أو الإنجليزية بأسلوبك الخاص، أو اختر من الأسئلة الـ 30 في القائمة الجانبية."
-)
+# 🩸 الشريط العلوي المتحرك والنابض بالحياة (Animated Banner)
+st.markdown("""
+<div class="blood-banner">
+    <h1><span class="animated-cell">🩸</span> Iron-Deficiency Anemia AI Assistant</h1>
+    <p>مساعد الذكاء الاصطناعي التعليمي لفقر الدم بعوز الحديد • مدعوم بمصادر معتمدة (WHO, NHS, CDC)</p>
+</div>
+""", unsafe_allow_html=True)
 
-# تعليمات النظام الصارمة (System Prompt) للذكاء الاصطناعي
+# تعليمات النظام الصارمة للذكاء الاصطناعي
 SYSTEM_PROMPT = """
 You are an intelligent, safe, educational AI Medical Chatbot specialized EXCLUSIVELY in "Iron-Deficiency Anemia (فقر الدم بعوز الحديد)".
 
@@ -354,7 +405,6 @@ STRICT COMPETITION RULES YOU MUST FOLLOW:
    - Cite authoritative sources at the end of every medical answer: (Source: WHO / NHS / MedlinePlus / CDC). Never invent fake links.
 """
 
-# تهيئة اتصال الذكاء الاصطناعي Groq
 client = None
 if "GROQ_API_KEY" in st.secrets:
     try:
@@ -386,17 +436,14 @@ def get_working_model(_client):
         return "llama-3.1-8b-instant"
 
 
-# دالة البحث الذكي في قاعدة الـ 30 سؤالاً (كخط دفاع احتياطي أو للأسئلة المطابقة)
 def search_local_kb(user_text):
     text_lower = user_text.lower().strip()
     is_english = any(ord(c) < 128 and c.isalpha() for c in user_text)
 
     for item in QA_DATABASE:
-        # تطابق مباشر مع نص السؤال المختار من القائمة
         if item["q_en"].lower() in text_lower or item["q_ar"] in text_lower:
             return item["a_en"] if is_english else item["a_ar"]
 
-    # تطابق الكلمات المفتاحية عند عدم توفر API
     for item in QA_DATABASE:
         if is_english:
             if any(kw in text_lower for kw in item["kw_en"]):
@@ -407,7 +454,7 @@ def search_local_kb(user_text):
 
     if is_english:
         return (
-            "As an educational assistant specialized in **Iron-Deficiency Anemia**, I recommend consulting official guidelines from **WHO, CDC, NHS, or MedlinePlus** regarding your query. "
+            "As an educational assistant specialized in **Iron-Deficiency Anemia**, I recommend consulting official guidelines from **WHO, CDC, NHS, or MedlinePlus**. "
             "Please note that this tool is for educational purposes only and does not replace a doctor's consultation."
         )
     else:
@@ -425,11 +472,9 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# تحديد السؤال المراد إرساله (سواء من صندوق الكتابة أو من قائمة الـ 30 سؤالاً)
-user_query = st.chat_input("Type your question in English or Arabic... / اكتب سؤالك هنا باللغتين...")
+user_query = st.chat_input("Type your question or choose from sidebar... / اكتب سؤالك هنا...")
 
 if ask_preset_btn and not selected_q.startswith("---"):
-    # إزالة الرقم من بداية السؤال المختار
     user_query = selected_q.split(". ", 1)[1] if ". " in selected_q else selected_q
 
 if user_query:
@@ -439,7 +484,6 @@ if user_query:
 
     with st.chat_message("assistant"):
         response = None
-        # المحاولة الأولى: استخدام الذكاء الاصطناعي الحقيقي (للفهم الحر بأي صيغة باللغتين)
         if client is not None:
             with st.spinner("Analyzing & verifying against medical sources... / جاري صياغة الإجابة..."):
                 try:
@@ -456,10 +500,8 @@ if user_query:
                     )
                     response = completion.choices[0].message.content
                 except Exception:
-                    # في حال حدوث أي خلل في السيرفر، ينتقل تلقائياً لقاعدة البيانات المحلية للـ 30 سؤالاً
                     response = search_local_kb(user_query)
         else:
-            # في حال عدم وجود مفتاح API، يجيب فوراً من قاعدة الـ 30 سؤالاً باللغتين
             response = search_local_kb(user_query)
 
         st.markdown(response)
