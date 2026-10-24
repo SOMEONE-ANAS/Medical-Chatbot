@@ -330,7 +330,7 @@ st.title("🩸 Iron-Deficiency Anemia AI Assistant")
 st.subheader("مساعد الذكاء الاصطناعي التعليمي لفقر الدم بعوز الحديد")
 st.write(
     "🇬🇧 **English:** Type any question in English or select from the 30 verified questions in the sidebar.\n\n"
-    "🇸🇦 **العربية:** اكتب أي سؤال بالعربية أو الإنجليزية بأسلوبك الخاص، أو اختر من الأسئلة الـ 30 في القائمة الجانبية."
+    "🇮🇶 **العربية:** اكتب أي سؤال بالعربية أو الإنجليزية بأسلوبك الخاص، أو اختر من الأسئلة الـ 30 في القائمة الجانبية."
 )
 
 # تعليمات النظام الصارمة (System Prompt) للذكاء الاصطناعي
