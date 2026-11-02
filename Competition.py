@@ -137,14 +137,17 @@ if "GROQ_API_KEY" in st.secrets:
 def get_working_model(_client):
     try:
         models = _client.models.list()
-        available_ids = [m.id for m in models.data if all(x not in m.id.lower() for x in ["whisper", "guard", "tts", "vision"])]
-        preferred = ["llama-3.1-8b-instant", "llama3-8b-8192", "llama3-70b-8192", "gemma2-9b-it", "mixtral-8x7b-32768"]
+        # استبعاد النماذج غير الخاصة بالمحادثة (مثل الصوتيات، الترانزكريبت، الكانوبي لابز وغيرها)
+        excluded = ["whisper", "guard", "tts", "vision", "canopylabs", "audio", "embed"]
+        available_ids = [m.id for m in models.data if all(x not in m.id.lower() for x in excluded)]
+        
+        preferred = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "llama3-70b-8192", "gemma2-9b-it"]
         for p in preferred:
             if p in available_ids:
                 return p
-        return available_ids[0] if available_ids else "llama-3.1-8b-instant"
+        return "llama-3.3-70b-versatile"
     except Exception:
-        return "llama-3.1-8b-instant"
+        return "llama-3.3-70b-versatile"
 
 # 7. إدارة ذاكرة المحادثة والشات بوت
 if "messages" not in st.session_state:
@@ -177,7 +180,7 @@ if user_query:
                         model=active_model,
                         messages=messages_for_api,
                         temperature=0.2,
-                        max_tokens=150,  # تقليل الحد الأقصى للرموز لضمان الاختصار الشديد
+                        max_tokens=150,
                     )
                     response = completion.choices[0].message.content
                 except Exception as e:
